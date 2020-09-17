@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="css/style.css">
+<title>mychat</title>
+</head>
+<body>
+
+
+
+<!-- コンテンツ表示画面 -->
+<div class="wrappar">
+    <h1>CHAT</h1>
+    <div id="output" style="overflow:auto;" ></div>
+    <div class="inputWapper">
+        <div class="nameWrapper">
+             <img src="imgs/icon.jpg" id="myicon" alt="" width="50px"height="50px">
+             <input type="text" id="uname" placeholder="名前を入力">
+        </div>
+        <textarea  id="text" cols="70" rows="8" placeholder="メッセージを入力"></textarea><br>
+        <button id="send">送信</button>
+        <ul>
+          <li class="imgs" data-img="0"><img src="imgs/buke.png" width="40"></li>
+          <li class="imgs" data-img="1"><img src="imgs/caram.png" width="40"></li>
+          <li class="imgs" data-img="2"><img src="imgs/tuku.jpg" width="40"></li>
+        </ul>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!--** Firebase **-->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>  
+<script>// 貼り付け
+  var firebaseConfig = {
+//ここに貼り付け
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const ref = firebase.database().ref(); 
+//=======================================
+
+
+
+//アイコン受理
+let d = 0 ;
+const img =["buke.png","caram.png","tuku.jpg"];
+
+$(".imgs").on("click",function(){
+d = $(this).attr("data-img");
+});
+
+//関数
+function  send(){
+    let now = new Date();
+    let month = now.getMonth() + 1; 
+    let day = now.getDate();       
+    let h = now.getHours();        
+    let m = now.getMinutes();       
+    let time = month+"月"+day+"日"+h+":"+m;
+
+    const uname = $("#uname").val();
+    const text = $("#text").val();
+
+    const msg ={
+            time:time,
+            uname:uname,
+            text:text,
+            icon:d
+            }
+    ref.push(msg); //set=決まった名前、push=ユニーク
+};
+
+
+  //文字を送信
+  $("#send").on("click",function(){
+    send();  //ここは関数がはいる
+  });
+
+
+  //受信処理
+  ref.on("child_added",function(data){
+    const v =data.val();// 送信されたオブジェクトを取得
+    const k =data.key;// ユニークキーを取得
+    const h ='<div class="inputimgs"><img src="imgs/'+img[v.icon]+'"width="100"></div><p class="name">'+v.uname+'</p><p class="sentence">'+v.text+'</p><p class="time">'+v.time+'</p>';
+    // const h ='<dl id="'+k+'"><dt><img src="imgs/'+img[v.icon]+'" width="50"><br>'+v.uname+'</dt><dd>'+v.text+'</dd><dd>'+v.time+'</dd></dl>';
+
+    $("#output").append(h);
+    let o =$('#output')[0].scrollHeight;
+    $("#output").scrollTop(o);
+  });
+
+  //イベント情報取得
+  $("#text").on("keydown",function(e){
+      if(e.keyCode == 13){
+      send(); 
+      }
+  });
+
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
